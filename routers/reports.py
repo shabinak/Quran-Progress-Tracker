@@ -23,7 +23,11 @@ def download_weekly_report(student_id: int, week_start: date = None, db: Session
     
     # Generate PDF
     filename = f"weekly_{student.name}_{summary.week_start}.pdf"
-    filepath = f"reports/{filename}"
+    # Use /tmp directory for Vercel deployment
+    if os.getenv("VERCEL"):
+        filepath = f"/tmp/{filename}"
+    else:
+        filepath = f"reports/{filename}"
     
     try:
         pdf_path = create_weekly_pdf(summary, filepath)
@@ -48,7 +52,11 @@ def download_monthly_report(student_id: int, month_start: date = None, db: Sessi
     
     # Generate PDF
     filename = f"monthly_{student.name}_{summary.month_start.strftime('%Y_%m')}.pdf"
-    filepath = f"reports/{filename}"
+    # Use /tmp directory for Vercel deployment
+    if os.getenv("VERCEL"):
+        filepath = f"/tmp/{filename}"
+    else:
+        filepath = f"reports/{filename}"
     
     try:
         pdf_path = create_monthly_pdf(summary, filepath)
@@ -78,11 +86,22 @@ def list_reports(student_id: int, db: Session = Depends(get_db)):
         if filename.startswith(f"weekly_{student.name}") or filename.startswith(f"monthly_{student.name}"):
             filepath = os.path.join(reports_dir, filename)
             file_stats = os.stat(filepath)
+            # Extract week_start from filename for weekly reports
+            week_start = None
+            if filename.startswith("weekly_"):
+                try:
+                    # Extract date from filename like "weekly_Hafsa_2025-08-31.pdf"
+                    date_part = filename.split("_")[-1].replace(".pdf", "")
+                    week_start = date_part
+                except:
+                    pass
+            
             student_reports.append({
                 "filename": filename,
                 "type": "weekly" if filename.startswith("weekly_") else "monthly",
                 "created_at": file_stats.st_mtime,
-                "size": file_stats.st_size
+                "size": file_stats.st_size,
+                "week_start": week_start
             })
     
     # Sort by creation time (newest first)

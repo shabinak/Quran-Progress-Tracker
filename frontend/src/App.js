@@ -15,6 +15,7 @@ import ProgressEdit from './pages/ProgressEdit';
 import WeeklySummary from './pages/WeeklySummary';
 import MonthlySummary from './pages/MonthlySummary';
 import Reports from './pages/Reports';
+import AllReports from './pages/AllReports';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
             <Route path="/summaries/monthly/:studentId" element={<MonthlySummary />} />
             
             {/* Reports routes */}
+            <Route path="/reports" element={<AllReports />} />
             <Route path="/reports/:studentId" element={<Reports />} />
           </Routes>
         </div>

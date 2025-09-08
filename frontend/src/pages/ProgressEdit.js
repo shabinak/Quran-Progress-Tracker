@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { progressAPI, studentsAPI } from '../services/api';
@@ -38,11 +38,7 @@ const ProgressEdit = () => {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchProgress();
-  }, [id]);
-
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     try {
       const response = await progressAPI.getById(id);
       const progressData = response.data;
@@ -82,7 +78,11 @@ const ProgressEdit = () => {
       toast.error('Error fetching progress entry');
       console.error('Error:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchProgress();
+  }, [fetchProgress]);
 
   const handleChange = (e) => {
     setFormData({

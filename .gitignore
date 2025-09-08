@@ -64,3 +64,4 @@ frontend/.env.production.local
 # Logs
 logs
 *.log
+.vercel

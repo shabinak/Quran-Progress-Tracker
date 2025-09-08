@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { summariesAPI, studentsAPI, reportsAPI } from '../services/api';
 import { format } from 'date-fns';
+import WhatsAppShare from '../components/WhatsAppShare';
 
 const WeeklySummary = () => {
   const { studentId } = useParams();
@@ -13,12 +14,7 @@ const WeeklySummary = () => {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStudent();
-    fetchSummary();
-  }, [studentId, weekStart]);
-
-  const fetchStudent = async () => {
+  const fetchStudent = useCallback(async () => {
     try {
       const response = await studentsAPI.getById(studentId);
       setStudent(response.data);
@@ -26,9 +22,9 @@ const WeeklySummary = () => {
       toast.error('Error fetching student');
       console.error('Error:', error);
     }
-  };
+  }, [studentId]);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const response = await summariesAPI.getWeekly(studentId, weekStart);
       setSummary(response.data);
@@ -38,7 +34,12 @@ const WeeklySummary = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId, weekStart]);
+
+  useEffect(() => {
+    fetchStudent();
+    fetchSummary();
+  }, [fetchStudent, fetchSummary]);
 
   const downloadReport = async () => {
     try {
@@ -79,9 +80,16 @@ const WeeklySummary = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2>Weekly Summary - {student?.name}</h2>
-        <button onClick={downloadReport} className="btn btn-success">
-          Download PDF
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <WhatsAppShare 
+            studentId={studentId} 
+            studentName={student?.name} 
+            weekStart={weekStart} 
+          />
+          <button onClick={downloadReport} className="btn btn-success">
+            Download PDF
+          </button>
+        </div>
       </div>
 
       <div className="card">

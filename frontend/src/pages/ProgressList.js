@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { progressAPI, studentsAPI } from '../services/api';
@@ -10,16 +10,7 @@ const ProgressList = () => {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (studentId) {
-      fetchStudent();
-      fetchProgress();
-    } else {
-      fetchAllProgress();
-    }
-  }, [studentId]);
-
-  const fetchStudent = async () => {
+  const fetchStudent = useCallback(async () => {
     try {
       const response = await studentsAPI.getById(studentId);
       setStudent(response.data);
@@ -27,9 +18,9 @@ const ProgressList = () => {
       toast.error('Error fetching student');
       console.error('Error:', error);
     }
-  };
+  }, [studentId]);
 
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     try {
       const response = await progressAPI.getAll(studentId);
       setProgressEntries(response.data);
@@ -39,9 +30,9 @@ const ProgressList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
 
-  const fetchAllProgress = async () => {
+  const fetchAllProgress = useCallback(async () => {
     try {
       // For now, we'll show a message to select a student
       // In a real app, you might want to show all progress entries
@@ -51,7 +42,16 @@ const ProgressList = () => {
       console.error('Error:', error);
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (studentId) {
+      fetchStudent();
+      fetchProgress();
+    } else {
+      fetchAllProgress();
+    }
+  }, [studentId, fetchStudent, fetchProgress, fetchAllProgress]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this progress entry?')) {

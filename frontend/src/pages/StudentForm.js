@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { studentsAPI } from '../services/api';
@@ -14,13 +14,7 @@ const StudentForm = () => {
 
   const isEdit = Boolean(id);
 
-  useEffect(() => {
-    if (isEdit) {
-      fetchStudent();
-    }
-  }, [id, isEdit]);
-
-  const fetchStudent = async () => {
+  const fetchStudent = useCallback(async () => {
     try {
       const response = await studentsAPI.getById(id);
       setFormData(response.data);
@@ -28,7 +22,13 @@ const StudentForm = () => {
       toast.error('Error fetching student');
       console.error('Error:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (isEdit) {
+      fetchStudent();
+    }
+  }, [isEdit, fetchStudent]);
 
   const handleChange = (e) => {
     setFormData({

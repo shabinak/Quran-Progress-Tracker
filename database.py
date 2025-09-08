@@ -7,7 +7,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database URL from environment or default to SQLite
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./quran_tracker.db")
+# For Vercel deployment, use a temporary file
+if os.getenv("VERCEL"):
+    DATABASE_URL = "sqlite:////tmp/quran_tracker.db"
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./quran_tracker.db")
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

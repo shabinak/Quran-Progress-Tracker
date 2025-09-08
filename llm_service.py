@@ -1,14 +1,23 @@
-import openai
 import os
 from typing import Optional
 from models import Progress, WeeklySummary, MonthlySummary
 from datetime import date, timedelta
 
-# Initialize OpenAI client
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize OpenAI client (optional)
+try:
+    import openai
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    OPENAI_AVAILABLE = True
+except Exception as e:
+    print(f"OpenAI not available: {e}")
+    client = None
+    OPENAI_AVAILABLE = False
 
 def generate_weekly_summary(current_week: Progress, previous_week: Optional[Progress], student_name: str) -> str:
     """Generate a natural language summary for weekly progress"""
+    
+    if not OPENAI_AVAILABLE:
+        return generate_fallback_weekly_summary(current_week, previous_week, student_name)
     
     prompt = f"""
     As a Quran memorization teacher, provide a constructive weekly progress summary for student {student_name}.
@@ -64,6 +73,9 @@ def generate_weekly_summary(current_week: Progress, previous_week: Optional[Prog
 
 def generate_monthly_summary(weekly_summaries: list[WeeklySummary], student_name: str, month_start: date, month_end: date) -> str:
     """Generate a natural language summary for monthly progress"""
+    
+    if not OPENAI_AVAILABLE:
+        return generate_fallback_monthly_summary(weekly_summaries, student_name, month_start, month_end)
     
     total_new_ayahs = sum(ws.new_ayahs_count for ws in weekly_summaries)
     total_revision_pages = sum(ws.revision_pages_count for ws in weekly_summaries)
