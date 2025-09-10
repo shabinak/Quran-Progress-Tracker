@@ -16,6 +16,7 @@ import WeeklySummary from './pages/WeeklySummary';
 import MonthlySummary from './pages/MonthlySummary';
 import Reports from './pages/Reports';
 import AllReports from './pages/AllReports';
+import MemorizationTest from './pages/MemorizationTest';
 
 function App() {
   return (
@@ -45,6 +46,9 @@ function App() {
             {/* Reports routes */}
             <Route path="/reports" element={<AllReports />} />
             <Route path="/reports/:studentId" element={<Reports />} />
+            
+            {/* Memorization Test route */}
+            <Route path="/test" element={<MemorizationTest />} />
           </Routes>
         </div>
         
