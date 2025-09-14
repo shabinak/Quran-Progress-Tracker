@@ -162,8 +162,57 @@ const MemorizationTest = () => {
   // Recording functions
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      // Check if we're on a mobile device
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      // Check if MediaRecorder is supported
+      if (!window.MediaRecorder) {
+        alert('Recording is not supported in this browser. Please use a modern browser like Chrome, Firefox, or Safari.');
+        return;
+      }
+
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Microphone access is not supported in this browser. Please use a modern browser.');
+        return;
+      }
+
+      // Check if we're on HTTPS (required for media access)
+      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+        alert('Recording requires HTTPS. Please access this app through a secure connection.');
+        return;
+      }
+
+      // Show mobile-specific instructions
+      if (isMobile) {
+        const proceed = window.confirm(
+          '📱 Mobile Recording Instructions:\n\n' +
+          '1. Make sure you allow microphone access when prompted\n' +
+          '2. If recording doesn\'t start, check your browser settings\n' +
+          '3. Some browsers may require you to tap the screen first\n\n' +
+          'Continue with recording?'
+        );
+        if (!proceed) return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        } 
+      });
+      
+      // Check if MediaRecorder supports the audio format
+      const options = { mimeType: 'audio/webm' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options.mimeType = 'audio/mp4';
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options.mimeType = 'audio/wav';
+        }
+      }
+
+      const recorder = new MediaRecorder(stream, options);
       const chunks = [];
 
       recorder.ondataavailable = (event) => {
@@ -173,9 +222,16 @@ const MemorizationTest = () => {
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/wav' });
+        const blob = new Blob(chunks, { type: options.mimeType });
         const url = URL.createObjectURL(blob);
         setAudioURL(url);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event.error);
+        alert('Recording error occurred. Please try again.');
+        setIsRecording(false);
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -184,7 +240,22 @@ const MemorizationTest = () => {
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
-      alert('Could not access microphone. Please check permissions.');
+      
+      let errorMessage = 'Could not access microphone. ';
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage += 'Please allow microphone access and try again.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage += 'No microphone found. Please connect a microphone.';
+      } else if (error.name === 'NotSupportedError') {
+        errorMessage += 'Recording is not supported in this browser.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage += 'Microphone is being used by another application.';
+      } else {
+        errorMessage += 'Please check your browser settings and try again.';
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -990,6 +1061,37 @@ const MemorizationTest = () => {
                   🎤 Record Your Recitation
                 </h4>
                 
+                {/* Mobile Help Section */}
+                {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                  <div style={{
+                    background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+                    border: '2px solid #f59e0b',
+                    borderRadius: '12px',
+                    padding: '15px',
+                    marginBottom: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ 
+                      fontSize: '1.1rem', 
+                      fontWeight: '600', 
+                      color: '#92400e',
+                      marginBottom: '10px'
+                    }}>
+                      📱 Mobile Recording Tips
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.9rem', 
+                      color: '#92400e',
+                      lineHeight: '1.4'
+                    }}>
+                      • Allow microphone access when prompted<br/>
+                      • Tap the screen before recording if needed<br/>
+                      • Use Chrome or Safari for best results<br/>
+                      • Make sure you're on a secure (HTTPS) connection
+                    </div>
+                  </div>
+                )}
+                
                 <div style={{ 
                   display: 'flex', 
                   gap: '15px', 
@@ -997,7 +1099,24 @@ const MemorizationTest = () => {
                   flexWrap: 'wrap',
                   alignItems: 'center'
                 }}>
-                  {!isRecording ? (
+                  {!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia ? (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '20px',
+                      background: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
+                      border: '2px solid #fca5a5',
+                      borderRadius: '12px',
+                      color: '#dc2626'
+                    }}>
+                      <div style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '10px' }}>
+                        ⚠️ Recording Not Supported
+                      </div>
+                      <div style={{ fontSize: '0.9rem', lineHeight: '1.4' }}>
+                        Your browser doesn't support audio recording.<br/>
+                        Please use Chrome, Firefox, or Safari for the best experience.
+                      </div>
+                    </div>
+                  ) : !isRecording ? (
                     <button 
                       onClick={startRecording}
                       style={{
