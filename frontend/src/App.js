@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
 
 // Pages
+import Home from './pages/Home';
 import StudentList from './pages/StudentList';
 import StudentForm from './pages/StudentForm';
 import ProgressList from './pages/ProgressList';
@@ -25,8 +26,9 @@ function App() {
         <Navbar />
         <div className="container">
           <Routes>
-            {/* Default redirect to students */}
-            <Route path="/" element={<Navigate to="/students" replace />} />
+            {/* Home page */}
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             
             {/* Student routes */}
             <Route path="/students" element={<StudentList />} />

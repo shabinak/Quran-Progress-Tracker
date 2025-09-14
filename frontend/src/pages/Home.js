@@ -1,0 +1,614 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Home = () => {
+  return (
+    <>
+      <style>
+        {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+          
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+          }
+          
+          .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+          }
+          
+          .slide-in {
+            animation: slideIn 0.4s ease-out;
+          }
+          
+          .feature-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+          
+          .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+          }
+        `}
+      </style>
+      
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '20px 0'
+      }}>
+        <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+          {/* Header Section */}
+          <div className="fade-in-up" style={{ 
+            textAlign: 'center', 
+            marginBottom: '60px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '25px',
+            padding: '50px 30px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+            backdropFilter: 'blur(15px)'
+          }}>
+            <h1 style={{ 
+              margin: '0 0 20px 0', 
+              fontSize: '3.5rem', 
+              fontWeight: '800',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textAlign: 'center'
+            }}>
+              🕌 Hifz Hub
+            </h1>
+            <p style={{ 
+              margin: '0 0 30px 0', 
+              fontSize: '1.3rem', 
+              color: '#666',
+              textAlign: 'center',
+              lineHeight: '1.6'
+            }}>
+              Your comprehensive hub for Quran memorization, progress tracking, and student management
+            </p>
+            
+            {/* Quick Stats */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
+              gap: '20px',
+              marginTop: '40px',
+              maxWidth: '600px',
+              margin: '40px auto 0'
+            }}>
+              <div style={{ 
+                textAlign: 'center',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #667eea20, #764ba220)',
+                borderRadius: '15px',
+                border: '2px solid rgba(102, 126, 234, 0.2)'
+              }}>
+                <div style={{ 
+                  fontSize: '2rem', 
+                  fontWeight: 'bold', 
+                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '5px'
+                }}>
+                  🧠
+                </div>
+                <div style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#666',
+                  fontWeight: '600'
+                }}>
+                  Memorization Testing
+                </div>
+              </div>
+              <div style={{ 
+                textAlign: 'center',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #10B98120, #05966920)',
+                borderRadius: '15px',
+                border: '2px solid rgba(16, 185, 129, 0.2)'
+              }}>
+                <div style={{ 
+                  fontSize: '2rem', 
+                  fontWeight: 'bold', 
+                  color: '#10B981',
+                  marginBottom: '5px'
+                }}>
+                  📊
+                </div>
+                <div style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#666',
+                  fontWeight: '600'
+                }}>
+                  Progress Tracking
+                </div>
+              </div>
+              <div style={{ 
+                textAlign: 'center',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #3B82F620, #2563EB20)',
+                borderRadius: '15px',
+                border: '2px solid rgba(59, 130, 246, 0.2)'
+              }}>
+                <div style={{ 
+                  fontSize: '2rem', 
+                  fontWeight: 'bold', 
+                  color: '#3B82F6',
+                  marginBottom: '5px'
+                }}>
+                  📝
+                </div>
+                <div style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#666',
+                  fontWeight: '600'
+                }}>
+                  Report Generation
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Features Section */}
+          <div className="slide-in" style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '25px',
+            padding: '50px 40px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+            backdropFilter: 'blur(15px)',
+            marginBottom: '40px'
+          }}>
+            <h2 style={{ 
+              textAlign: 'center', 
+              margin: '0 0 50px 0', 
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              🎯 Choose Your Learning Path
+            </h2>
+            
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+              gap: '30px' 
+            }}>
+              {/* Memorization Testing Section */}
+              <Link to="/test" className="feature-card" style={{ 
+                textDecoration: 'none',
+                color: 'inherit'
+              }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                  color: 'white',
+                  padding: '40px 30px',
+                  borderRadius: '20px',
+                  textAlign: 'center',
+                  boxShadow: '0 15px 30px rgba(102, 126, 234, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-50px',
+                    right: '-50px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  
+                  <div style={{ 
+                    fontSize: '4rem', 
+                    marginBottom: '20px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    🧠
+                  </div>
+                  <h3 style={{ 
+                    margin: '0 0 15px 0', 
+                    fontSize: '1.8rem',
+                    fontWeight: '700',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Memorization Testing
+                  </h3>
+                  <p style={{ 
+                    margin: '0 0 25px 0', 
+                    fontSize: '1.1rem',
+                    opacity: 0.9,
+                    lineHeight: '1.6',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Test your Quran memorization with interactive quizzes. Record your recitation, get instant feedback, and track your progress.
+                  </p>
+                  
+                  <div style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '15px 25px',
+                    borderRadius: '25px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    display: 'inline-block',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Start Testing →
+                  </div>
+                </div>
+              </Link>
+
+              {/* Student Management Section */}
+              <Link to="/students" className="feature-card" style={{ 
+                textDecoration: 'none',
+                color: 'inherit'
+              }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  padding: '40px 30px',
+                  borderRadius: '20px',
+                  textAlign: 'center',
+                  boxShadow: '0 15px 30px rgba(16, 185, 129, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-50px',
+                    right: '-50px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  
+                  <div style={{ 
+                    fontSize: '4rem', 
+                    marginBottom: '20px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    👥
+                  </div>
+                  <h3 style={{ 
+                    margin: '0 0 15px 0', 
+                    fontSize: '1.8rem',
+                    fontWeight: '700',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Student Management
+                  </h3>
+                  <p style={{ 
+                    margin: '0 0 25px 0', 
+                    fontSize: '1.1rem',
+                    opacity: 0.9,
+                    lineHeight: '1.6',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Manage your students, track their progress, and organize their learning schedules. Add new students and monitor their development.
+                  </p>
+                  
+                  <div style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '15px 25px',
+                    borderRadius: '25px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    display: 'inline-block',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Manage Students →
+                  </div>
+                </div>
+              </Link>
+
+              {/* Progress Tracking Section */}
+              <Link to="/progress" className="feature-card" style={{ 
+                textDecoration: 'none',
+                color: 'inherit'
+              }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  color: 'white',
+                  padding: '40px 30px',
+                  borderRadius: '20px',
+                  textAlign: 'center',
+                  boxShadow: '0 15px 30px rgba(59, 130, 246, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-50px',
+                    right: '-50px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  
+                  <div style={{ 
+                    fontSize: '4rem', 
+                    marginBottom: '20px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    📈
+                  </div>
+                  <h3 style={{ 
+                    margin: '0 0 15px 0', 
+                    fontSize: '1.8rem',
+                    fontWeight: '700',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Progress Tracking
+                  </h3>
+                  <p style={{ 
+                    margin: '0 0 25px 0', 
+                    fontSize: '1.1rem',
+                    opacity: 0.9,
+                    lineHeight: '1.6',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Track memorization progress, view detailed analytics, and monitor student achievements over time.
+                  </p>
+                  
+                  <div style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '15px 25px',
+                    borderRadius: '25px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    display: 'inline-block',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    View Progress →
+                  </div>
+                </div>
+              </Link>
+
+              {/* Reports Section */}
+              <Link to="/reports" className="feature-card" style={{ 
+                textDecoration: 'none',
+                color: 'inherit'
+              }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: 'white',
+                  padding: '40px 30px',
+                  borderRadius: '20px',
+                  textAlign: 'center',
+                  boxShadow: '0 15px 30px rgba(245, 158, 11, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-50px',
+                    right: '-50px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%'
+                  }}></div>
+                  
+                  <div style={{ 
+                    fontSize: '4rem', 
+                    marginBottom: '20px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    📊
+                  </div>
+                  <h3 style={{ 
+                    margin: '0 0 15px 0', 
+                    fontSize: '1.8rem',
+                    fontWeight: '700',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Reports & Analytics
+                  </h3>
+                  <p style={{ 
+                    margin: '0 0 25px 0', 
+                    fontSize: '1.1rem',
+                    opacity: 0.9,
+                    lineHeight: '1.6',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    Generate detailed reports, view analytics, and export data for comprehensive progress tracking and analysis.
+                  </p>
+                  
+                  <div style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '15px 25px',
+                    borderRadius: '25px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    display: 'inline-block',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    View Reports →
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          {/* Quick Actions Section */}
+          <div className="fade-in-up" style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '25px',
+            padding: '40px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+            backdropFilter: 'blur(15px)'
+          }}>
+            <h3 style={{ 
+              textAlign: 'center', 
+              margin: '0 0 30px 0', 
+              fontSize: '2rem',
+              fontWeight: '700',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              🚀 Quick Actions
+            </h3>
+            
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '20px' 
+            }}>
+              <Link to="/students/new" style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #667eea20, #764ba220)',
+                  padding: '25px 20px',
+                  borderRadius: '15px',
+                  textAlign: 'center',
+                  border: '2px solid rgba(102, 126, 234, 0.2)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'translateY(-5px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>➕</div>
+                  <div style={{ fontWeight: '600', color: '#333' }}>Add Student</div>
+                </div>
+              </Link>
+              
+              <Link to="/test" style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #10B98120, #05966920)',
+                  padding: '25px 20px',
+                  borderRadius: '15px',
+                  textAlign: 'center',
+                  border: '2px solid rgba(16, 185, 129, 0.2)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'translateY(-5px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(16, 185, 129, 0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🧠</div>
+                  <div style={{ fontWeight: '600', color: '#333' }}>Start Test</div>
+                </div>
+              </Link>
+              
+              <Link to="/reports" style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #3B82F620, #2563EB20)',
+                  padding: '25px 20px',
+                  borderRadius: '15px',
+                  textAlign: 'center',
+                  border: '2px solid rgba(59, 130, 246, 0.2)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'translateY(-5px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                  <div style={{ fontWeight: '600', color: '#333' }}>View Reports</div>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Home;

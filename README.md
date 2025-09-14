@@ -1,14 +1,15 @@
-# Quran Memorization Tracker
+# Hifz Hub
 
-A POC application for teachers to track Quran memorization and revision progress of students with weekly and monthly summaries.
+A comprehensive digital platform for teachers to track Quran memorization and revision progress of students with interactive testing, audio recording, and automated report generation.
 
 ## Features
 
-- **Student Management**: Add and manage students with name and class day
-- **Weekly Progress Input**: Track new memorization, recent revision, old revision, and teacher notes
-- **Weekly Summary**: Generate structured summaries comparing current vs previous week
-- **Monthly Summary**: Aggregate 4 weeks of progress into comprehensive reports
-- **Reports**: Generate downloadable PDF reports with natural language summaries
+- **Interactive Memorization Testing**: Test students with random ayahs by Surah or Juz
+- **Audio Recording & Playback**: Students can record their recitation for self-assessment
+- **Student Management**: Add and manage students with comprehensive profiles
+- **Progress Tracking**: Visual analytics and detailed progress monitoring
+- **Automated Reports**: Generate beautiful PDF reports with natural language summaries
+- **Modern UI**: Beautiful, responsive design with glassmorphism effects
 
 ## Tech Stack
 

@@ -16,6 +16,13 @@ const MemorizationTest = () => {
   const [dataStats, setDataStats] = useState(null);
   const [currentArabicText, setCurrentArabicText] = useState('');
   const [nextAyahs, setNextAyahs] = useState([]);
+  
+  // Recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [currentAudio, setCurrentAudio] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Load Quran data on component mount
   useEffect(() => {
@@ -107,6 +114,9 @@ const MemorizationTest = () => {
       setCurrentAyah(newAyah);
       setShowAnswer(false);
       
+      // Clear previous recording when moving to next question
+      clearRecording();
+      
       // Load Arabic text and next ayahs
       try {
         const arabicText = await getArabicText(newAyah.surah, newAyah.ayah);
@@ -146,6 +156,104 @@ const MemorizationTest = () => {
     setIsTestActive(false);
     setCurrentAyah(null);
     setShowAnswer(false);
+    clearRecording();
+  };
+
+  // Recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        setAudioURL(url);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      alert('Could not access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const playRecording = () => {
+    if (audioURL) {
+      // Stop any currently playing audio
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+      
+      const audio = new Audio(audioURL);
+      setCurrentAudio(audio);
+      
+      audio.onplay = () => setIsPlaying(true);
+      audio.onpause = () => setIsPlaying(false);
+      audio.onended = () => setIsPlaying(false);
+      
+      audio.play();
+    }
+  };
+
+  const pauseRecording = () => {
+    if (currentAudio && isPlaying) {
+      currentAudio.pause();
+    }
+  };
+
+  const stopPlayback = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      pauseRecording();
+    } else {
+      playRecording();
+    }
+  };
+
+  const clearRecording = () => {
+    // Stop any playing audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    
+    if (audioURL) {
+      URL.revokeObjectURL(audioURL);
+    }
+    setAudioURL(null);
+    setIsRecording(false);
+    setIsPlaying(false);
+    if (mediaRecorder) {
+      mediaRecorder.stream?.getTracks().forEach(track => track.stop());
+    }
+    setMediaRecorder(null);
   };
 
   const getSurahName = (surahNumber) => {
@@ -859,6 +967,243 @@ const MemorizationTest = () => {
                   ))}
                 </div>
               )}
+
+              {/* Recording Section */}
+              <div style={{ 
+                marginBottom: '30px',
+                padding: '25px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: '15px',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(102, 126, 234, 0.2)'
+              }}>
+                <h4 style={{ 
+                  textAlign: 'center', 
+                  margin: '0 0 20px 0', 
+                  fontSize: '1.3rem',
+                  fontWeight: '700',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  🎤 Record Your Recitation
+                </h4>
+                
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '15px', 
+                  justifyContent: 'center', 
+                  flexWrap: 'wrap',
+                  alignItems: 'center'
+                }}>
+                  {!isRecording ? (
+                    <button 
+                      onClick={startRecording}
+                      style={{
+                        background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 24px',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        borderRadius: '25px',
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 15px rgba(255, 107, 107, 0.4)',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 8px 20px rgba(255, 107, 107, 0.5)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 6px 15px rgba(255, 107, 107, 0.4)';
+                      }}
+                    >
+                      🎤 Start Recording
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={stopRecording}
+                      style={{
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 24px',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        borderRadius: '25px',
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 15px rgba(239, 68, 68, 0.4)',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        animation: 'pulse 1.5s infinite'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.5)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 6px 15px rgba(239, 68, 68, 0.4)';
+                      }}
+                    >
+                      ⏹️ Stop Recording
+                    </button>
+                  )}
+                  
+                  {audioURL && (
+                    <>
+                      <button 
+                        onClick={togglePlayPause}
+                        style={{
+                          background: isPlaying 
+                            ? 'linear-gradient(135deg, #f59e0b, #d97706)' 
+                            : 'linear-gradient(135deg, #10b981, #059669)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 24px',
+                          fontSize: '1rem',
+                          fontWeight: '600',
+                          borderRadius: '25px',
+                          cursor: 'pointer',
+                          boxShadow: isPlaying 
+                            ? '0 6px 15px rgba(245, 158, 11, 0.4)' 
+                            : '0 6px 15px rgba(16, 185, 129, 0.4)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = isPlaying 
+                            ? '0 8px 20px rgba(245, 158, 11, 0.5)' 
+                            : '0 8px 20px rgba(16, 185, 129, 0.5)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = isPlaying 
+                            ? '0 6px 15px rgba(245, 158, 11, 0.4)' 
+                            : '0 6px 15px rgba(16, 185, 129, 0.4)';
+                        }}
+                      >
+                        {isPlaying ? '⏸️ Pause' : '▶️ Play'} Recording
+                      </button>
+                      
+                      <button 
+                        onClick={stopPlayback}
+                        style={{
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 24px',
+                          fontSize: '1rem',
+                          fontWeight: '600',
+                          borderRadius: '25px',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 15px rgba(239, 68, 68, 0.4)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.5)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 6px 15px rgba(239, 68, 68, 0.4)';
+                        }}
+                      >
+                        ⏹️ Stop
+                      </button>
+                      
+                      <button 
+                        onClick={clearRecording}
+                        style={{
+                          background: 'linear-gradient(135deg, #6b7280, #4b5563)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 24px',
+                          fontSize: '1rem',
+                          fontWeight: '600',
+                          borderRadius: '25px',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 15px rgba(107, 114, 128, 0.4)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 8px 20px rgba(107, 114, 128, 0.5)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 6px 15px rgba(107, 114, 128, 0.4)';
+                        }}
+                      >
+                        🗑️ Clear
+                      </button>
+                    </>
+                  )}
+                </div>
+                
+                {isRecording && (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    marginTop: '15px',
+                    color: '#ef4444',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: '#ef4444', 
+                      borderRadius: '50%',
+                      animation: 'blink 1s infinite'
+                    }}></div>
+                    Recording in progress...
+                  </div>
+                )}
+                
+                {audioURL && !isRecording && (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    marginTop: '15px',
+                    color: isPlaying ? '#f59e0b' : '#10b981',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: isPlaying ? '#f59e0b' : '#10b981', 
+                      borderRadius: '50%',
+                      animation: isPlaying ? 'blink 1s infinite' : 'none'
+                    }}></div>
+                    {isPlaying ? 'Playing recording...' : 'Recording completed! You can play it back or clear it.'}
+                  </div>
+                )}
+              </div>
 
               <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {!showAnswer ? (
