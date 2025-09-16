@@ -3,6 +3,7 @@ import { surahs } from '../data/surahs';
 import { juz } from '../data/juz';
 import { getArabicText, getNextAyahs, ayahExists } from '../data/quranDataLoader';
 import ApiStatus from '../components/ApiStatus';
+import { quranAudioService, RECITERS } from '../services/quranAudioService';
 
 const MemorizationTest = () => {
   const [testMode, setTestMode] = useState('surah'); // 'surah' or 'juz'
@@ -23,6 +24,12 @@ const MemorizationTest = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  
+  // Quran recitation state
+  const [isRecitationPlaying, setIsRecitationPlaying] = useState(false);
+  const [recitationLoading, setRecitationLoading] = useState(false);
+  const [selectedReciter] = useState(RECITERS.HUSARY); // Fixed to Al-Husary only
+  // const [availableReciters, setAvailableReciters] = useState([]); // Not needed anymore
 
   // Load Quran data on component mount
   useEffect(() => {
@@ -39,6 +46,7 @@ const MemorizationTest = () => {
     };
     
     loadData();
+    // No need to load reciters - using Al-Husary only
   }, []);
 
   // Generate random ayah based on selection
@@ -117,6 +125,9 @@ const MemorizationTest = () => {
       // Clear previous recording when moving to next question
       clearRecording();
       
+      // Stop any playing recitation
+      stopRecitation();
+      
       // Load Arabic text and next ayahs
       try {
         const arabicText = await getArabicText(newAyah.surah, newAyah.ayah);
@@ -157,6 +168,7 @@ const MemorizationTest = () => {
     setCurrentAyah(null);
     setShowAnswer(false);
     clearRecording();
+    stopRecitation();
   };
 
   // Recording functions
@@ -327,6 +339,74 @@ const MemorizationTest = () => {
     setMediaRecorder(null);
   };
 
+  // Quran recitation functions
+  const playCurrentAyahRecitation = async () => {
+    if (!currentAyah) return;
+
+    setRecitationLoading(true);
+    try {
+      await quranAudioService.playAyah(
+        currentAyah.surah,
+        currentAyah.ayah,
+        selectedReciter,
+        {
+          onPlay: (audioData) => {
+            setIsRecitationPlaying(true);
+            console.log('Playing recitation:', audioData);
+          },
+          onPause: () => setIsRecitationPlaying(false),
+          onEnd: () => setIsRecitationPlaying(false),
+          onError: (error, audioData) => {
+            console.error('Recitation error:', error);
+            setIsRecitationPlaying(false);
+            
+            // Provide more specific error messages
+            let errorMessage = 'Unable to play recitation. ';
+            if (error.message && error.message.includes('All audio URLs failed')) {
+              errorMessage += 'Audio files are not available for this ayah with the selected reciter. Please try a different reciter.';
+            } else if (error.message && error.message.includes('network')) {
+              errorMessage += 'Please check your internet connection and try again.';
+            } else {
+              errorMessage += 'Please try again or select a different reciter.';
+            }
+            
+            alert(errorMessage);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Failed to play recitation:', error);
+      
+      let errorMessage = 'Failed to load recitation. ';
+      if (navigator.onLine === false) {
+        errorMessage += 'You appear to be offline. Please check your internet connection.';
+      } else if (error.message && error.message.includes('All audio URLs failed')) {
+        errorMessage += 'Audio is not available for this ayah. Please try a different reciter.';
+      } else {
+        errorMessage += 'Please check your internet connection and try again.';
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setRecitationLoading(false);
+    }
+  };
+
+  const stopRecitation = () => {
+    quranAudioService.stopAudio();
+    setIsRecitationPlaying(false);
+  };
+
+  const pauseRecitation = () => {
+    quranAudioService.pauseAudio();
+    setIsRecitationPlaying(false);
+  };
+
+  // const resumeRecitation = () => {
+  //   quranAudioService.resumeAudio();
+  //   setIsRecitationPlaying(true);
+  // };
+
   const getSurahName = (surahNumber) => {
     const surah = surahs.find(s => s.number === surahNumber);
     return surah ? surah.name : `Surah ${surahNumber}`;
@@ -377,6 +457,15 @@ const MemorizationTest = () => {
             to {
               opacity: 1;
               transform: translateX(0);
+            }
+          }
+          
+          @keyframes spin {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
             }
           }
           
@@ -991,6 +1080,183 @@ const MemorizationTest = () => {
                 }}>
                   What are the next 3 ayahs?
                 </div>
+              </div>
+
+              {/* Recitation Section */}
+              <div style={{ 
+                marginBottom: '20px',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+                borderRadius: '12px',
+                border: '2px solid #0ea5e9',
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '600', 
+                  color: '#0ea5e9',
+                  marginBottom: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}>
+                  🎵 Listen to Recitation
+                </div>
+                
+                {/* Reciter Info - Show Al-Husary as default */}
+                <div style={{ 
+                  marginBottom: '15px',
+                  fontSize: '14px',
+                  color: '#0ea5e9',
+                  fontWeight: '500'
+                }}>
+                  Reciter: Mahmoud Khalil Al-Husary
+                </div>
+
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '12px', 
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexWrap: 'wrap'
+                }}>
+                  {!isRecitationPlaying ? (
+                    <button 
+                      onClick={playCurrentAyahRecitation}
+                      disabled={recitationLoading}
+                      style={{
+                        background: recitationLoading 
+                          ? 'linear-gradient(135deg, #94a3b8, #64748b)'
+                          : 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 20px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        borderRadius: '20px',
+                        cursor: recitationLoading ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        opacity: recitationLoading ? 0.7 : 1
+                      }}
+                      onMouseOver={(e) => {
+                        if (!recitationLoading) {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 6px 16px rgba(14, 165, 233, 0.4)';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (!recitationLoading) {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(14, 165, 233, 0.3)';
+                        }
+                      }}
+                    >
+                      {recitationLoading ? (
+                        <>
+                          <div style={{ 
+                            width: '16px', 
+                            height: '16px', 
+                            border: '2px solid transparent',
+                            borderTop: '2px solid white',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                          }}></div>
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          ▶️ Play Recitation
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={pauseRecitation}
+                        style={{
+                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 20px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          borderRadius: '20px',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 6px 16px rgba(245, 158, 11, 0.4)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                        }}
+                      >
+                        ⏸️ Pause
+                      </button>
+                      <button 
+                        onClick={stopRecitation}
+                        style={{
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 20px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          borderRadius: '20px',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                        }}
+                      >
+                        ⏹️ Stop
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {isRecitationPlaying && (
+                  <div style={{ 
+                    marginTop: '12px',
+                    color: '#0ea5e9',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: '#0ea5e9', 
+                      borderRadius: '50%',
+                      animation: 'blink 1s infinite'
+                    }}></div>
+                    Playing recitation...
+                  </div>
+                )}
               </div>
 
               {/* Answer - Next 3 Ayahs */}

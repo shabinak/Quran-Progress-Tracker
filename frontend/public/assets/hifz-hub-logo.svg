@@ -1,0 +1,68 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cloud symbols -->
+  <g transform="translate(60,25)">
+    <!-- Left cloud (white) -->
+    <g transform="translate(-15,0)">
+      <circle cx="-8" cy="0" r="6" fill="white"/>
+      <circle cx="-2" cy="-3" r="8" fill="white"/>
+      <circle cx="4" cy="0" r="6" fill="white"/>
+      <circle cx="8" cy="2" r="4" fill="white"/>
+      <rect x="-14" y="0" width="22" height="6" fill="white"/>
+    </g>
+    
+    <!-- Right cloud (orange/yellow) -->
+    <g transform="translate(15,0)">
+      <circle cx="-8" cy="0" r="6" fill="#F59E0B"/>
+      <circle cx="-2" cy="-3" r="8" fill="#F59E0B"/>
+      <circle cx="4" cy="0" r="6" fill="#F59E0B"/>
+      <circle cx="8" cy="2" r="4" fill="#F59E0B"/>
+      <rect x="-14" y="0" width="22" height="6" fill="#F59E0B"/>
+    </g>
+    
+    <!-- Connection line -->
+    <path d="M-5,8 Q0,15 5,8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="0" cy="12" r="2" fill="#F59E0B"/>
+  </g>
+  
+  <!-- Open Quran Book -->
+  <g transform="translate(60,70)">
+    <!-- Book base/shadow -->
+    <ellipse cx="0" cy="25" rx="45" ry="8" fill="rgba(0,0,0,0.1)"/>
+    
+    <!-- Left page -->
+    <path d="M-40,-10 C-40,-15 -35,-20 -30,-20 L-5,-20 C0,-20 0,-15 0,-10 L0,15 C0,20 -5,25 -10,25 L-35,25 C-40,25 -40,20 -40,15 Z" 
+          fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    
+    <!-- Right page -->
+    <path d="M40,-10 C40,-15 35,-20 30,-20 L5,-20 C0,-20 0,-15 0,-10 L0,15 C0,20 5,25 10,25 L35,25 C40,25 40,20 40,15 Z" 
+          fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    
+    <!-- Book spine -->
+    <rect x="-2" y="-20" width="4" height="45" fill="#059669" rx="2"/>
+    
+    <!-- Left page content - Arabic calligraphy style -->
+    <g transform="translate(-20,0)">
+      <path d="M-12,-8 C-8,-8 -4,-6 0,-4 C4,-6 8,-8 12,-8" stroke="#059669" stroke-width="2" fill="none"/>
+      <path d="M-10,-2 C-6,-2 -2,0 2,2 C6,0 10,-2 10,-2" stroke="#059669" stroke-width="2" fill="none"/>
+      <path d="M-8,4 C-4,4 0,6 4,8 C8,6 12,4 12,4" stroke="#059669" stroke-width="2" fill="none"/>
+      <circle cx="-6" cy="-4" r="1" fill="#059669"/>
+      <circle cx="6" cy="2" r="1" fill="#059669"/>
+    </g>
+    
+    <!-- Right page content - Arabic calligraphy style -->
+    <g transform="translate(20,0)">
+      <path d="M-12,-8 C-8,-8 -4,-6 0,-4 C4,-6 8,-8 12,-8" stroke="#1F2937" stroke-width="2" fill="none"/>
+      <path d="M-10,-2 C-6,-2 -2,0 2,2 C6,0 10,-2 10,-2" stroke="#1F2937" stroke-width="2" fill="none"/>
+      <path d="M-8,4 C-4,4 0,6 4,8 C8,6 12,4 12,4" stroke="#1F2937" stroke-width="2" fill="none"/>
+      <circle cx="-6" cy="-4" r="1" fill="#1F2937"/>
+      <circle cx="6" cy="2" r="1" fill="#1F2937"/>
+    </g>
+    
+    <!-- Book binding detail -->
+    <rect x="-1" y="-18" width="2" height="41" fill="#047857"/>
+    
+    <!-- Page edges -->
+    <rect x="-38" y="23" width="35" height="2" fill="#D97706" rx="1"/>
+    <rect x="3" y="23" width="35" height="2" fill="#D97706" rx="1"/>
+  </g>
+</svg>

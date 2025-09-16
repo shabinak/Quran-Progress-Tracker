@@ -16,7 +16,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-content">
         <div className="navbar-brand">
-          <h1>📖 Hifz Hub</h1>
+          <h1>Hifz Hub</h1>
           <p className="navbar-subtitle">Track your students' memorization journey</p>
         </div>
         <ul className="navbar-nav">

@@ -258,6 +258,31 @@ code {
   overflow: hidden;
 }
 
+/* Logo positioning */
+.navbar-logo {
+  position: absolute;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.logo-image {
+  width: 80px;
+  height: auto;
+  max-height: 80px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  opacity: 0.95;
+}
+
+.logo-image:hover {
+  transform: scale(1.08) rotate(2deg);
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  opacity: 1;
+}
+
 .navbar::before {
   content: '';
   position: absolute;
@@ -401,6 +426,23 @@ code {
   
   .nav-label {
     font-size: 0.75rem;
+  }
+  
+  /* Mobile logo adjustments */
+  .navbar-logo {
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+  }
+  
+  .logo-image {
+    width: 65px;
+    height: auto;
+    max-height: 65px;
+  }
+  
+  .logo-image:hover {
+    transform: scale(1.05) rotate(1deg);
   }
 }
 
