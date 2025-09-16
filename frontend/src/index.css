@@ -1,3 +1,9 @@
+/* Uthmani Script Fonts for authentic Quranic text */
+@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
 /* Modern Purple Theme CSS */
 :root {
   --primary-purple: #8B5CF6;
@@ -941,6 +947,180 @@ code {
   background-color: rgba(239, 68, 68, 0.05);
 }
 
+/* Uthmani Script and Mushaf Layout Styles */
+.uthmani-text {
+  font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Cairo', serif !important;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 2.4;
+  direction: rtl;
+  text-align: justify;
+  color: #1f2937;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  letter-spacing: 0.02em;
+  word-spacing: 0.1em;
+}
+
+.mushaf-page {
+  background: linear-gradient(145deg, #fefce8 0%, #fef3c7 50%, #fffbeb 100%);
+  border: 4px solid #d97706;
+  border-radius: 20px;
+  padding: 50px;
+  font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', serif;
+  position: relative;
+  box-shadow: 
+    0 12px 30px rgba(0,0,0,0.15), 
+    inset 0 2px 0 rgba(255,255,255,0.3),
+    inset 0 -2px 0 rgba(217, 119, 6, 0.1);
+  overflow: hidden;
+  min-height: 600px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mushaf-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(217, 119, 6, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(217, 119, 6, 0.08) 0%, transparent 50%),
+    linear-gradient(90deg, transparent 49%, rgba(217, 119, 6, 0.1) 50%, transparent 51%);
+  pointer-events: none;
+}
+
+.mushaf-header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.mushaf-surah-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 10px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  font-family: 'Scheherazade New', 'Amiri', serif;
+}
+
+.mushaf-ayah-range {
+  font-size: 16px;
+  color: #a16207;
+  font-weight: 600;
+  font-family: 'Scheherazade New', 'Amiri', serif;
+}
+
+.mushaf-content {
+  position: relative;
+  z-index: 1;
+}
+
+.mushaf-line {
+  margin-bottom: 8px;
+  line-height: 2.6;
+  text-align: justify;
+  direction: rtl;
+}
+
+.ayah-highlight {
+  display: inline;
+  margin: 0 3px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.4s ease;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ayah-highlight.current {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(14, 165, 233, 0.15));
+  border: 2px solid rgba(14, 165, 233, 0.4);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
+}
+
+.ayah-highlight.next-1 {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+  border: 2px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.ayah-highlight.next-2 {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+  border: 2px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.ayah-highlight.next-3 {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+  border: 2px solid rgba(139, 92, 246, 0.35);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+}
+
+.ayah-number {
+  font-size: 18px;
+  font-weight: 600;
+  vertical-align: baseline;
+  margin: 0 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-family: 'Scheherazade New', 'Amiri', serif;
+}
+
+.ayah-number.current { color: #0ea5e9; }
+.ayah-number.next-1 { color: #10b981; }
+.ayah-number.next-2 { color: #f59e0b; }
+.ayah-number.next-3 { color: #8b5cf6; }
+
+.mushaf-footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 16px;
+  color: #a16207;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  font-family: 'Scheherazade New', 'Amiri', serif;
+}
+
+.mushaf-footer-text {
+  display: inline-block;
+  padding: 10px 20px;
+  background: rgba(217, 119, 6, 0.1);
+  border-radius: 25px;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.1);
+}
+
+/* Loading state for mushaf */
+.mushaf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  font-size: 18px;
+  color: #a16207;
+  font-family: 'Scheherazade New', 'Amiri', serif;
+}
+
+.mushaf-loading .spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(217, 119, 6, 0.3);
+  border-top: 3px solid #d97706;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .rating-grid {
@@ -949,5 +1129,42 @@ code {
   
   .teacher-review-container {
     padding: 1rem;
+  }
+
+  /* Enhanced responsive design for mushaf */
+  .mushaf-page {
+    padding: 30px 20px;
+    margin: 15px 10px;
+    border-radius: 15px;
+    min-height: 400px;
+  }
+  
+  .uthmani-text {
+    font-size: 26px !important;
+    line-height: 2.4 !important;
+  }
+  
+  .mushaf-surah-name {
+    font-size: 16px;
+  }
+  
+  .mushaf-ayah-range {
+    font-size: 14px;
+  }
+  
+  .ayah-highlight {
+    padding: 6px 10px;
+    margin: 0 2px;
+  }
+  
+  .ayah-number {
+    font-size: 16px;
+    margin: 0 6px;
+    padding: 3px 6px;
+  }
+  
+  .mushaf-footer-text {
+    padding: 8px 16px;
+    font-size: 14px;
   }
 }

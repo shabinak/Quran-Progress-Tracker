@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { surahs } from '../data/surahs';
 import { juz } from '../data/juz';
-import { getArabicText, getNextAyahs, ayahExists } from '../data/quranDataLoader';
+import { getArabicText, ayahExists } from '../data/quranDataLoader';
 import ApiStatus from '../components/ApiStatus';
 import { quranAudioService, RECITERS } from '../services/quranAudioService';
+import { quranTextService } from '../services/quranTextService';
 
 const MemorizationTest = () => {
   const [testMode, setTestMode] = useState('surah'); // 'surah' or 'juz'
@@ -30,6 +31,13 @@ const MemorizationTest = () => {
   const [recitationLoading, setRecitationLoading] = useState(false);
   const [selectedReciter] = useState(RECITERS.HUSARY); // Fixed to Al-Husary only
   // const [availableReciters, setAvailableReciters] = useState([]); // Not needed anymore
+  
+  // Display format state
+  const [displayFormat, setDisplayFormat] = useState('list'); // 'list' or 'quranic'
+  
+  // Uthmani text state
+  const [uthmaniAyahs, setUthmaniAyahs] = useState([]);
+  const [uthmaniLoading, setUthmaniLoading] = useState(false);
 
   // Load Quran data on component mount
   useEffect(() => {
@@ -116,6 +124,90 @@ const MemorizationTest = () => {
     await generateNewAyah();
   };
 
+  // Get next ayahs with continuation to next surah if needed
+  const getNextAyahsWithSurahContinuation = async (currentSurah, startAyah, count) => {
+    const nextAyahs = [];
+    let surahNum = currentSurah;
+    let ayahNum = startAyah;
+    
+    for (let i = 0; i < count; i++) {
+      try {
+        // Find the current surah data
+        // eslint-disable-next-line no-loop-func
+        const surah = surahs.find(s => s.number === surahNum);
+        
+        if (!surah) {
+          // End of Quran
+          break;
+        }
+        
+        // Check if we've reached the end of current surah
+        if (ayahNum > surah.ayahs) {
+          // Move to next surah
+          surahNum++;
+          ayahNum = 1;
+          
+          // Check if next surah exists
+          // eslint-disable-next-line no-loop-func
+          const nextSurah = surahs.find(s => s.number === surahNum);
+          if (!nextSurah) {
+            // End of Quran
+            break;
+          }
+        }
+        
+        // Try to get the ayah text
+        const currentSurahForRequest = surahNum;
+        const currentAyahForRequest = ayahNum;
+        const ayahText = await getArabicText(currentSurahForRequest, currentAyahForRequest);
+        const ayahAvailable = await ayahExists(currentSurahForRequest, currentAyahForRequest);
+        
+        nextAyahs.push({
+          surah: currentSurahForRequest,
+          ayah: currentAyahForRequest,
+          text: ayahText || `Ayah ${currentAyahForRequest} from ${getSurahName(currentSurahForRequest)}`,
+          available: ayahAvailable && !!ayahText
+        });
+        
+        ayahNum++;
+      } catch (error) {
+        console.error(`Error loading ayah ${surahNum}:${ayahNum}:`, error);
+        
+        // Add placeholder for unavailable ayah
+        const errorSurahForRequest = surahNum;
+        const errorAyahForRequest = ayahNum;
+        nextAyahs.push({
+          surah: errorSurahForRequest,
+          ayah: errorAyahForRequest,
+          text: `Ayah ${errorAyahForRequest} from ${getSurahName(errorSurahForRequest)} (unavailable)`,
+          available: false
+        });
+        
+        ayahNum++;
+      }
+    }
+    
+    return nextAyahs;
+  };
+
+  // Load Uthmani text for current ayah and next ayahs
+  const loadUthmaniText = async (ayah) => {
+    if (!ayah) return;
+    
+    setUthmaniLoading(true);
+    try {
+      // Get current ayah + next 3 ayahs in Uthmani script (with surah continuation)
+      const uthmaniData = await quranTextService.getAyahRange(ayah.surah, ayah.ayah, 4);
+      setUthmaniAyahs(uthmaniData);
+    } catch (error) {
+      console.error('Error loading Uthmani text:', error);
+      setUthmaniAyahs([]);
+    } finally {
+      setUthmaniLoading(false);
+    }
+  };
+
+
   const generateNewAyah = async () => {
     const newAyah = await generateRandomAyah();
     if (newAyah) {
@@ -128,13 +220,16 @@ const MemorizationTest = () => {
       // Stop any playing recitation
       stopRecitation();
       
-      // Load Arabic text and next ayahs
+      // Load Arabic text and next ayahs (including from next surah if needed)
       try {
         const arabicText = await getArabicText(newAyah.surah, newAyah.ayah);
-        const nextAyahsData = await getNextAyahs(newAyah.surah, newAyah.ayah + 1, 3);
+        const nextAyahsData = await getNextAyahsWithSurahContinuation(newAyah.surah, newAyah.ayah + 1, 3);
         
         setCurrentArabicText(arabicText || '');
         setNextAyahs(nextAyahsData);
+        
+        // Pre-load Uthmani text for when answer is shown
+        await loadUthmaniText(newAyah);
       } catch (error) {
         console.error('Error loading ayah data:', error);
         setCurrentArabicText('');
@@ -1269,9 +1364,95 @@ const MemorizationTest = () => {
                   borderRadius: '12px',
                   border: '2px solid #0ea5e9'
                 }}>
-                  <div style={{ marginBottom: '15px', fontWeight: '600', color: '#0ea5e9' }}>
-                    Answer: Next 3 Ayahs
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '20px',
+                    flexWrap: 'wrap',
+                    gap: '10px'
+                  }}>
+                    <div style={{ fontWeight: '600', color: '#0ea5e9' }}>
+                      Answer: Current + Next 3 Ayahs
                   </div>
+                    
+                    {/* Display Format Toggle */}
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: '8px',
+                      background: 'white',
+                      borderRadius: '8px',
+                      padding: '4px',
+                      border: '1px solid #0ea5e9'
+                    }}>
+                      <button
+                        onClick={() => setDisplayFormat('list')}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          background: displayFormat === 'list' ? '#0ea5e9' : 'transparent',
+                          color: displayFormat === 'list' ? 'white' : '#0ea5e9'
+                        }}
+                      >
+                        📋 List View
+                      </button>
+                      <button
+                        onClick={() => setDisplayFormat('quranic')}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          background: displayFormat === 'quranic' ? '#0ea5e9' : 'transparent',
+                          color: displayFormat === 'quranic' ? 'white' : '#0ea5e9'
+                        }}
+                      >
+                        📖 Quranic Page
+                      </button>
+                    </div>
+                  </div>
+
+                  {displayFormat === 'list' ? (
+                    /* List Format - Original */
+                    <div>
+                      {/* Current Ayah */}
+                      <div style={{ 
+                        marginBottom: '15px',
+                        padding: '15px',
+                        backgroundColor: '#e0f2fe',
+                        borderRadius: '8px',
+                        border: '2px solid #0ea5e9'
+                      }}>
+                        <div style={{ 
+                          fontSize: '16px', 
+                          fontWeight: '600', 
+                          color: '#0ea5e9',
+                          marginBottom: '8px'
+                        }}>
+                          {getSurahName(currentAyah.surah)} - Ayah {currentAyah.ayah} (Current)
+                        </div>
+                        <div style={{ 
+                          fontSize: '24px', 
+                          fontFamily: 'Amiri, Arial, sans-serif',
+                          lineHeight: '2',
+                          direction: 'rtl',
+                          textAlign: 'right',
+                          color: 'var(--text-dark)',
+                          fontWeight: '500'
+                        }}>
+                          {currentArabicText || 'Loading...'}
+                        </div>
+                      </div>
+
+                      {/* Next 3 Ayahs */}
                   {nextAyahs.map((ayah, index) => (
                     <div key={index} style={{ 
                       marginBottom: '15px',
@@ -1286,7 +1467,20 @@ const MemorizationTest = () => {
                         color: ayah.available ? '#0ea5e9' : '#d97706',
                         marginBottom: '8px'
                       }}>
-                        {getSurahName(currentAyah.surah)} - Ayah {ayah.ayah}
+                        {getSurahName(ayah.surah)} - Ayah {ayah.ayah}
+                        {ayah.surah !== currentAyah.surah && (
+                          <span style={{
+                            marginLeft: '8px',
+                            padding: '4px 8px',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '700'
+                          }}>
+                            Next Surah
+                          </span>
+                        )}
                         {!ayah.available && ' (Sample data limited)'}
                       </div>
                       <div style={{ 
@@ -1301,7 +1495,128 @@ const MemorizationTest = () => {
                         {ayah.text}
                       </div>
                     </div>
-                  ))}
+                      ))}
+                    </div>
+                  ) : (
+                    /* Enhanced Mushaf Page Format with Uthmani Script */
+                    <div className="mushaf-page">
+                      {uthmaniLoading ? (
+                        <div className="mushaf-loading">
+                          <div className="spinner"></div>
+                          Loading Uthmani text...
+                        </div>
+                      ) : (
+                        <>
+                          {/* Header */}
+                          <div className="mushaf-header">
+                            <div className="mushaf-surah-name">
+                              ✦ {getSurahName(currentAyah.surah)} ✦
+                              {nextAyahs.some(ayah => ayah.surah !== currentAyah.surah) && (
+                                <div style={{
+                                  fontSize: '14px',
+                                  fontWeight: '500',
+                                  color: '#10b981',
+                                  marginTop: '4px'
+                                }}>
+                                  continues to {getSurahName(nextAyahs.find(ayah => ayah.surah !== currentAyah.surah)?.surah)}
+                                </div>
+                              )}
+                            </div>
+                            <div className="mushaf-ayah-range">
+                              آيات {currentAyah.ayah} - {nextAyahs.length > 0 ? nextAyahs[nextAyahs.length - 1].ayah : currentAyah.ayah + 3}
+                            </div>
+                          </div>
+
+                          {/* Mushaf Content - Simplified and Beautiful */}
+                          <div className="mushaf-content">
+                            {uthmaniLoading ? (
+                              <div className="mushaf-loading">
+                                <div className="spinner"></div>
+                                Loading authentic Quranic text...
+                              </div>
+                            ) : uthmaniAyahs.length > 0 ? (
+                              /* Display Uthmani ayahs in a clean, flowing format */
+                              <div className="uthmani-text" style={{
+                                direction: 'rtl',
+                                textAlign: 'justify',
+                                fontSize: '32px',
+                                lineHeight: '2.8',
+                                fontFamily: "'Scheherazade New', 'Amiri', 'Noto Sans Arabic', serif",
+                                fontWeight: '500'
+                              }}>
+                                {uthmaniAyahs.map((ayah, index) => (
+                                  <span key={index}>
+                                    <span className={`ayah-highlight ${
+                                      index === 0 ? 'current' :
+                                      index === 1 ? 'next-1' :
+                                      index === 2 ? 'next-2' : 'next-3'
+                                    }`}>
+                                      {ayah.text}
+                                      <span className={`ayah-number ${
+                                        index === 0 ? 'current' :
+                                        index === 1 ? 'next-1' :
+                                        index === 2 ? 'next-2' : 'next-3'
+                                      }`}>
+                                        ﴿{ayah.ayah}﴾
+                                      </span>
+                                    </span>
+                                    {index < uthmaniAyahs.length - 1 ? ' ' : ''}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              /* Fallback to original display with enhanced styling */
+                              <div className="uthmani-text" style={{
+                                direction: 'rtl',
+                                textAlign: 'justify',
+                                fontSize: '32px',
+                                lineHeight: '2.8',
+                                fontFamily: "'Scheherazade New', 'Amiri', 'Noto Sans Arabic', serif",
+                                fontWeight: '500'
+                              }}>
+                                <span className="ayah-highlight current">
+                                  {currentArabicText || 'Loading...'}
+                                  <span className="ayah-number current">﴿{currentAyah.ayah}﴾</span>
+                                </span>
+                                {' '}
+                                {nextAyahs.map((ayah, index) => (
+                                  ayah.available ? (
+                                    <span key={index}>
+                                      <span className={`ayah-highlight next-${index + 1}`}>
+                                        {ayah.text}
+                                        <span className={`ayah-number next-${index + 1}`}>﴿{ayah.ayah}﴾</span>
+                                      </span>
+                                      {index < nextAyahs.length - 1 ? ' ' : ''}
+                                    </span>
+                                  ) : (
+                                    <span key={index} style={{ 
+                                      fontSize: '18px', 
+                                      color: '#92400e',
+                                      fontStyle: 'italic',
+                                      background: 'rgba(217, 119, 6, 0.1)',
+                                      padding: '6px 12px',
+                                      borderRadius: '8px',
+                                      margin: '4px',
+                                      border: '1px solid rgba(217, 119, 6, 0.3)'
+                                    }}>
+                                      [Ayah {ayah.ayah} - Limited sample data]
+                                    </span>
+                                  )
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Footer */}
+                          <div className="mushaf-footer">
+                            <div className="mushaf-footer-text">
+                              صدق الله العظيم
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1589,6 +1904,7 @@ const MemorizationTest = () => {
                   </div>
                 )}
               </div>
+
 
               <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {!showAnswer ? (
